@@ -1,0 +1,118 @@
+extends Node
+
+const CONTRACT_ABI := """
+[{"inputs":[{"internalType":"string","name":"_username","type":"string"}],"name":"sendHello","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"callHello","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"whoami","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}]
+"""
+
+const CONTRACT_ADDRESS := "0x71b215024ed4d2603b654379809feabf726c66f0"
+const CONTRACT_BYTECODE := "608060405234801561000f575f80fd5b506109f68061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610049575f3560e01c80628d3e261461004d57806391a8983e1461006b578063a87430ba1461009b578063b3b36bb3146100cb575b5f80fd5b6100556100e9565b604051610062919061031f565b60405180910390f35b6100856004803603810190610080919061047c565b610126565b604051610092919061031f565b60405180910390f35b6100b560048036038101906100b0919061051d565b610199565b6040516100c2919061031f565b60405180910390f35b6100d3610233565b6040516100e0919061031f565b60405180910390f35b60606040518060400160405280601081526020017f48656c6c6f2c204f7074696d69736d2100000000000000000000000000000000815250905090565b6060815f803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020015f209081610171919061074b565b508160405160200161018391906108e8565b6040516020818303038152906040529050919050565b5f602052805f5260405f205f9150905080546101b490610575565b80601f01602080910402602001604051908101604052809291908181526020018280546101e090610575565b801561022b5780601f106102025761010080835404028352916020019161022b565b820191905f5260205f20905b81548152906001019060200180831161020e57829003601f168201915b505050505081565b60605f803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020015f206040516020016102819190610994565b604051602081830303815290604052905090565b5f81519050919050565b5f82825260208201905092915050565b5f5b838110156102cc5780820151818401526020810190506102b1565b5f8484015250505050565b5f601f19601f8301169050919050565b5f6102f182610295565b6102fb818561029f565b935061030b8185602086016102af565b610314816102d7565b840191505092915050565b5f6020820190508181035f83015261033781846102e7565b905092915050565b5f604051905090565b5f80fd5b5f80fd5b5f80fd5b5f80fd5b7f4e487b71000000000000000000000000000000000000000000000000000000005f52604160045260245ffd5b61038e826102d7565b810181811067ffffffffffffffff821117156103ad576103ac610358565b5b80604052505050565b5f6103bf61033f565b90506103cb8282610385565b919050565b5f67ffffffffffffffff8211156103ea576103e9610358565b5b6103f3826102d7565b9050602081019050919050565b828183375f83830152505050565b5f61042061041b846103d0565b6103b6565b90508281526020810184848401111561043c5761043b610354565b5b610447848285610400565b509392505050565b5f82601f83011261046357610462610350565b5b813561047384826020860161040e565b91505092915050565b5f6020828403121561049157610490610348565b5b5f82013567ffffffffffffffff8111156104ae576104ad61034c565b5b6104ba8482850161044f565b91505092915050565b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6104ec826104c3565b9050919050565b6104fc816104e2565b8114610506575f80fd5b50565b5f81359050610517816104f3565b92915050565b5f6020828403121561053257610531610348565b5b5f61053f84828501610509565b91505092915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52602260045260245ffd5b5f600282049050600182168061058c57607f821691505b60208210810361059f5761059e610548565b5b50919050565b5f819050815f5260205f209050919050565b5f6020601f8301049050919050565b5f82821b905092915050565b5f600883026106017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff826105c6565b61060b86836105c6565b95508019841693508086168417925050509392505050565b5f819050919050565b5f819050919050565b5f61064f61064a61064584610623565b61062c565b610623565b9050919050565b5f819050919050565b61066883610635565b61067c61067482610656565b8484546105d2565b825550505050565b5f90565b610690610684565b61069b81848461065f565b505050565b5b818110156106be576106b35f82610688565b6001810190506106a1565b5050565b601f821115610703576106d4816105a5565b6106dd846105b7565b810160208510156106ec578190505b6107006106f8856105b7565b8301826106a0565b50505b505050565b5f82821c905092915050565b5f6107235f1984600802610708565b1980831691505092915050565b5f61073b8383610714565b9150826002028217905092915050565b61075482610295565b67ffffffffffffffff81111561076d5761076c610358565b5b6107778254610575565b6107828282856106c2565b5f60209050601f8311600181146107b3575f84156107a1578287015190505b6107ab8582610730565b865550610812565b601f1984166107c1866105a5565b5f5b828110156107e8578489015182556001820191506020850194506020810190506107c3565b868310156108055784890151610801601f891682610714565b8355505b6001600288020188555050505b505050505050565b5f81905092915050565b7f48656c6c6f2c20000000000000000000000000000000000000000000000000005f82015250565b5f61085860078361081a565b915061086382610824565b600782019050919050565b5f61087882610295565b610882818561081a565b93506108928185602086016102af565b80840191505092915050565b7f21000000000000000000000000000000000000000000000000000000000000005f82015250565b5f6108d260018361081a565b91506108dd8261089e565b600182019050919050565b5f6108f28261084c565b91506108fe828461086e565b9150610909826108c6565b915081905092915050565b5f815461092081610575565b61092a818661081a565b9450600182165f811461094457600181146109595761098b565b60ff198316865281151582028601935061098b565b610962856105a5565b5f5b8381101561098357815481890152600182019150602081019050610964565b838801955050505b50505092915050565b5f61099e8261084c565b91506109aa8284610914565b91506109b5826108c6565b91508190509291505056fea264697066735822122065e41b21ca00195d943031ce96f6b2b883bfc76ab1b73f031a04f766b3821b1264736f6c63430008140033"
+const NODE_RPC_URL := "https://snowy-capable-wave.optimism-sepolia.quiknode.pro/360d0830d495913ed76393730e16efb929d0f652"
+
+func send_hello(username, prikey):
+    # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
+    var h = ABIHelper.new()
+    var res = h.unmarshal_from_json(CONTRACT_ABI)
+    if !res:
+        print("unmarshal_from_json failed!")
+        return
+
+    var params = [
+        username,
+    ]
+    var packed = h.pack("sendHello", params)
+
+    # get Optimism instance and set rpc url
+    var op = Optimism.new()
+    op.set_rpc_url(NODE_RPC_URL)
+    var ethaccount_manager = EthAccountManager.new()
+    var ethaccount = ethaccount_manager.from_private_key(prikey.hex_decode())
+    op.set_eth_account(ethaccount)
+    var transaction = {
+        "to": CONTRACT_ADDRESS,
+        "data": packed,
+    }
+    var signed_tx_data = op.signed_transaction(transaction)
+    var rpc_result = op.send_transaction(signed_tx_data)
+    print("rpc_result: ", rpc_result)
+    # example rpc_result:  { "success": true, "errmsg": "", "txhash": "0xe3b18398db6371a47c1795f4a09ab412ddeceaa29ffda3d5dbae514a99e6caed" }
+    if rpc_result["success"] == false:
+        print("rpc reqeust failed! errmsg: ", rpc_result["errmsg"])
+        return
+    var tx_hash = rpc_result["txhash"]
+    print("tx_hash: ", tx_hash)
+    return tx_hash
+
+
+func callHello():
+    # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
+    var h = ABIHelper.new()
+    var res = h.unmarshal_from_json(CONTRACT_ABI)
+    if !res:
+        print("unmarshal_from_json failed!")
+        return []
+
+    var packed = h.pack("callHello", [])
+
+    var op = Optimism.new()
+    op.set_rpc_url(NODE_RPC_URL)
+    var call_msg = {
+        "from": "0x0000000000000000000000000000000000000000",
+        "to": CONTRACT_ADDRESS,
+        "input": "0x" + packed.hex_encode(),
+    }
+    var rpc_resp = op.call_contract(call_msg, "")
+    print("gd: origin rpc_result: ", rpc_resp)
+    print("gd: rpc_result: ", rpc_resp["response_body"])
+
+    var call_result = JSON.parse_string(rpc_resp["response_body"])
+
+    # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
+    var call_ret = call_result["result"]
+    call_ret = call_ret.substr(2, call_ret.length() - 2)
+    print("getBestScore. gd call ret: ", call_ret)
+    print("========= unpack to dictionary ==============\n")
+    var result = []
+    var err = h.unpack_into_array("callHello", call_ret.hex_decode(), result)
+    if err != OK:
+        assert(false, "unpack_into_dictionary failed!")
+    print("call result: ", result)
+    return result
+
+
+func whoami():
+    # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
+    var h = ABIHelper.new()
+    var res = h.unmarshal_from_json(CONTRACT_ABI)
+    if !res:
+        print("unmarshal_from_json failed!")
+        return []
+
+    var packed = h.pack("whoami", [])
+
+    var op = Optimism.new()
+    op.set_rpc_url(NODE_RPC_URL)
+    var call_msg = {
+        "from": "0x0000000000000000000000000000000000000000",
+        "to": CONTRACT_ADDRESS,
+        "input": "0x" + packed.hex_encode(),
+    }
+    var rpc_resp = op.call_contract(call_msg, "")
+    print("gd: origin rpc_result: ", rpc_resp)
+    print("gd: rpc_result: ", rpc_resp["response_body"])
+
+    var call_result = JSON.parse_string(rpc_resp["response_body"])
+
+    # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
+    var call_ret = call_result["result"]
+    call_ret = call_ret.substr(2, call_ret.length() - 2)
+    print("getBestScore. gd call ret: ", call_ret)
+    print("========= unpack to dictionary ==============\n")
+    var result = []
+    var err = h.unpack_into_array("callHello", call_ret.hex_decode(), result)
+    if err != OK:
+        assert(false, "unpack_into_dictionary failed!")
+    print("call result: ", result)
+    return result
+
+
+
