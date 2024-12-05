@@ -69,8 +69,6 @@ func callHello():
     # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
     var call_ret = call_result["result"]
     call_ret = call_ret.substr(2, call_ret.length() - 2)
-    print("getBestScore. gd call ret: ", call_ret)
-    print("========= unpack to dictionary ==============\n")
     var result = []
     var err = h.unpack_into_array("callHello", call_ret.hex_decode(), result)
     if err != OK:
@@ -105,8 +103,6 @@ func whoami():
     # create a new instance of the ABIHelper class and unmarshal the ABI JSON string into it
     var call_ret = call_result["result"]
     call_ret = call_ret.substr(2, call_ret.length() - 2)
-    print("getBestScore. gd call ret: ", call_ret)
-    print("========= unpack to dictionary ==============\n")
     var result = []
     var err = h.unpack_into_array("callHello", call_ret.hex_decode(), result)
     if err != OK:
