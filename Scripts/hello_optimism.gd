@@ -109,6 +109,3 @@ func whoami():
         assert(false, "unpack_into_dictionary failed!")
     print("call result: ", result)
     return result
-
-
-
