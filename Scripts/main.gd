@@ -1,8 +1,8 @@
 extends Control
 
-@onready var line_edit: LineEdit = $ColorRect/MarginContainer/VBoxContainer/HBoxContainer/LineEdit
-@onready var say_hi: Button = $ColorRect/MarginContainer/VBoxContainer/HBoxContainer/Button
-@onready var show_hello: Label = $ColorRect/MarginContainer/VBoxContainer/Label
+@onready var line_edit: LineEdit = $TextureRect/MarginContainer/VBoxContainer/HBoxContainer/LineEdit
+@onready var say_hi: Button = $TextureRect/MarginContainer/VBoxContainer/HBoxContainer/Button
+@onready var show_hello: Label = $TextureRect/MarginContainer/VBoxContainer/Label
 
 @export var private_key: String = ""
 
@@ -11,7 +11,8 @@ func _on_button_pressed() -> void:
     print("the input name is: %s" % [your_name])
     if your_name.length() > 0:
         if private_key.length() > 0:
-            HelloOptimism.send_hello(your_name, private_key)
+            var address = HelloOptimism.send_hello(your_name, private_key)
+            print("return address is: %s" % [address])
             var send_hello_result = HelloOptimism.whoami()
             show_hello.text = send_hello_result[0]
         else:
